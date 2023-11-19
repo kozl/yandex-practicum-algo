@@ -54,7 +54,7 @@ func TestDequeue_Basic3(t *testing.T) {
 
 func TestEval_Example1(t *testing.T) {
 	d := newDeq(4)
-	var w bytes.Buffer
+	w := bytes.Buffer{}
 
 	eval(d, "push_front 861", &w)
 	eval(d, "push_front -819", &w)
@@ -66,7 +66,7 @@ func TestEval_Example1(t *testing.T) {
 
 func TestEval_Example2(t *testing.T) {
 	d := newDeq(10)
-	var w bytes.Buffer
+	w := bytes.Buffer{}
 
 	eval(d, "push_front -855", &w)
 	eval(d, "push_front 0", &w)
@@ -81,7 +81,7 @@ func TestEval_Example2(t *testing.T) {
 
 func TestEval_Example3(t *testing.T) {
 	d := newDeq(6)
-	var w bytes.Buffer
+	w := bytes.Buffer{}
 
 	eval(d, "push_front -201", &w)
 	eval(d, "push_back 959", &w)
