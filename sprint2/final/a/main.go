@@ -1,7 +1,10 @@
 package main
 
 /*
+[Посылка](https://contest.yandex.ru/contest/22781/problems/)
+
 # Принцип работы
+
 
 Я реализовал очередь на базе кольцевого буфера, который представляет из себя слайс заданного capacity.
 Capacity слайса, то есть размер буфера задаётся при инициализации структуры. Структура включает в себя указатели
@@ -69,7 +72,7 @@ func (d *dequeue) pushBack(i int) error {
 		return errFull
 	}
 	d.data[d.tail] = i
-	d.tail = (d.tail + 1) % cap(d.data)
+	d.tail = toRight(d.tail, cap(d.data))
 	d.size++
 	return nil
 }
@@ -78,10 +81,7 @@ func (d *dequeue) pushFront(i int) error {
 	if d.size >= cap(d.data) {
 		return errFull
 	}
-	d.head--
-	if d.head < 0 {
-		d.head = cap(d.data) + d.head
-	}
+	d.head = toLeft(d.head, cap(d.data))
 	d.data[d.head] = i
 	d.size++
 	return nil
@@ -92,7 +92,7 @@ func (d *dequeue) popFront() (int, error) {
 		return 0, errEmpty
 	}
 	elem := d.data[d.head]
-	d.head = (d.head + 1) % cap(d.data)
+	d.head = toRight(d.head, cap(d.data))
 	d.size--
 	return elem, nil
 }
@@ -101,36 +101,42 @@ func (d *dequeue) popBack() (int, error) {
 	if d.size == 0 {
 		return 0, errEmpty
 	}
-	d.tail--
-	if d.tail < 0 {
-		d.tail = cap(d.data) + d.tail
-	}
+	d.tail = toLeft(d.tail, cap(d.data))
 	d.size--
 	return d.data[d.tail], nil
 }
 
+func toLeft(pos, cap int) int {
+	if pos == 0 {
+		return cap - 1
+	}
+	return pos - 1
+}
+
+func toRight(pos, cap int) int {
+	return (pos + 1) % cap
+}
+
 func eval(d *dequeue, cmd string, w io.Writer) {
 	parts := strings.Split(cmd, " ")
+	pushFuncs := map[string]func(int) error{
+		"push_back":  d.pushBack,
+		"push_front": d.pushFront,
+	}
+
+	popFuncs := map[string]func() (int, error){
+		"pop_front": d.popFront,
+		"pop_back":  d.popBack,
+	}
+
 	switch parts[0] {
-	case "push_back":
+	case "push_back", "push_front":
 		i, _ := strconv.Atoi(parts[1])
-		if err := d.pushBack(i); err != nil {
+		if err := pushFuncs[parts[0]](i); err != nil {
 			fmt.Fprintln(w, "error")
 		}
-	case "push_front":
-		i, _ := strconv.Atoi(parts[1])
-		if err := d.pushFront(i); err != nil {
-			fmt.Fprintln(w, "error")
-		}
-	case "pop_front":
-		value, err := d.popFront()
-		if err != nil {
-			fmt.Fprintln(w, "error")
-			break
-		}
-		fmt.Fprintln(w, value)
-	case "pop_back":
-		value, err := d.popBack()
+	case "pop_back", "pop_front":
+		value, err := popFuncs[parts[0]]()
 		if err != nil {
 			fmt.Fprintln(w, "error")
 			break

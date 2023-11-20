@@ -1,6 +1,8 @@
 package main
 
 /*
+[Посылка](https://contest.yandex.ru/contest/22781/problems/B/)
+
 # Принцип работы
 
 Функция eval занимается разбором и вычислением выражения, результат вычисления пишит в переданный Writer.
@@ -30,6 +32,15 @@ import (
 	"strings"
 )
 
+type opFn func(int, int) int
+
+var operations = map[string]opFn{
+	"+": func(a, b int) int { return a + b },
+	"-": func(a, b int) int { return a - b },
+	"*": func(a, b int) int { return a * b },
+	"/": func(a, b int) int { return int(math.Floor(float64(a) / float64(b))) },
+}
+
 type stack struct {
 	data []int
 }
@@ -56,34 +67,18 @@ func (s *stack) pop() int {
 
 func eval(s *stack, expr string, w io.Writer) {
 	tokens := strings.Split(expr, " ")
-	for i := 0; i < len(tokens); i++ {
-		switch tokens[i] {
-		case "+", "-", "/", "*":
-			operand2, operand1 := s.pop(), s.pop()
-			result := calc(operand1, operand2, tokens[i])
+	for _, token := range tokens {
+		if _, ok := operations[token]; ok {
+			b, a := s.pop(), s.pop()
+			result := operations[token](a, b)
 			s.push(result)
-		default:
-			val, _ := strconv.Atoi(tokens[i])
-			s.push(val)
+			continue
 		}
+		number, _ := strconv.Atoi(token)
+		s.push(number)
 	}
 	result := s.pop()
 	fmt.Fprintln(w, result)
-}
-
-func calc(operand1, operand2 int, operation string) int {
-	switch operation {
-	case "+":
-		return operand1 + operand2
-	case "-":
-		return operand1 - operand2
-	case "*":
-		return operand1 * operand2
-	case "/":
-		return int(math.Floor(float64(operand1) / float64(operand2)))
-	default:
-		panic(fmt.Sprintf("unknown operation: %s", operation))
-	}
 }
 
 func main() {
