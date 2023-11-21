@@ -1,6 +1,6 @@
 # L. Лишнаяя буква
 
-[Ссылка](https://contest.yandex.ru/contest/22449/problems/L/)
+[Яндекс.Контест](https://contest.yandex.ru/contest/22449/problems/L/)
 
 
 

@@ -1,6 +1,6 @@
 # F. Стек - Max
 
-[Ссылка](https://contest.yandex.ru/contest/22779/problems/F/)
+[Яндекс.Контест](https://contest.yandex.ru/contest/22779/problems/F/)
 
 Нужно реализовать класс StackMax, который поддерживает операцию определения максимума среди всех элементов в стеке. Класс должен поддерживать операции push(x), где x – целое число, pop() и get_max().
 

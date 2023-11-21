@@ -1,6 +1,6 @@
 # D. Хаотичность погоды
 
-[Ссылка](https://contest.yandex.ru/contest/22449/problems/D/)
+[Яндекс.Контест](https://contest.yandex.ru/contest/22449/problems/D/)
 
 Метеорологическая служба вашего города решила исследовать погоду новым способом.
 

@@ -1,6 +1,6 @@
 # B. Список дел
 
-[Ссылка](https://contest.yandex.ru/contest/22779/problems/B/)
+[Яндекс.Контест](https://contest.yandex.ru/contest/22779/problems/B/)
 
 Васе нужно распечатать свой список дел на сегодня. Помогите ему: напишите функцию, которая печатает все его дела. Известно, что дел у Васи не больше [Math Processing Error].
 

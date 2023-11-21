@@ -1,6 +1,6 @@
 # K. Списочная форма
 
-[Ссылка](https://contest.yandex.ru/contest/22449/problems/K/)
+[Яндекс.Контест](https://contest.yandex.ru/contest/22449/problems/K/)
 
 Вася просил Аллу помочь решить задачу. На этот раз по информатике.
 
