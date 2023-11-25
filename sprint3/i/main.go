@@ -19,9 +19,15 @@ func getTopN(array []int, n int) []int {
 		ids = append(ids, [2]int{k, v})
 	}
 	sort.Slice(ids, func(i, j int) bool {
+		if ids[i][1] == ids[j][1] {
+			return ids[i][0] < ids[j][0]
+		}
 		return ids[i][1] > ids[j][1]
 	})
 
+	if n > len(ids) {
+		n = len(ids)
+	}
 	result := make([]int, n)
 	for i := 0; i < n; i++ {
 		result[i] = ids[i][0]
