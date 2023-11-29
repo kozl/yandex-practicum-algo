@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"container/list"
 	"fmt"
 	"os"
 	"sort"
@@ -12,49 +11,41 @@ import (
 
 func getN(array []int, n int) int {
 	sort.Sort(sort.Reverse(sort.IntSlice(array)))
-	var k int
-	n, k = calculateNK(len(array), n)
-
-	diffs := []int{}
-
-	for idx, v := range array {
-		if idx+k < len(array) {
-			diffs = append(diffs, v-array[idx+k])
+	left, right := minDiff(array), array[0]-array[len(array)-1]
+	for left < right {
+		mid := (left + right) / 2
+		if checkIndex(array, mid, n) {
+			right = mid
+		} else {
+			left = mid + 1
 		}
 	}
-	sort.Ints(diffs)
-	return diffs[n-1]
+	return left
 }
 
-func calculateNK(l, n int) (newN int, k int) {
-	for k = 1; k <= l-1; k++ {
-		if n-(l-k) <= 0 {
-			break
+func checkIndex(array []int, mid, n int) bool {
+	var count int
+	for i := 0; i < len(array)-1; i++ {
+		var j int
+		for j = i + 1; j < len(array); j++ {
+			if array[i]-array[j] > mid {
+				break
+			}
 		}
-		n = n - (l - k)
+		count += j - i -1
 	}
-	return n, k
+	return count >= n
 }
 
-func addAndSort(diffs *list.List, value int, maxsize int) *list.List {
-	if diffs.Back() != nil && diffs.Back().Value.(int) <= value && diffs.Len() == maxsize {
-		return diffs
-	}
-	n := diffs.Front()
-	for n != nil && n.Value.(int) <= value {
-		n = n.Next()
-	}
-	if n == nil {
-		if diffs.Len() < maxsize {
-			diffs.PushBack(value)
+func minDiff(array []int) int {
+	min := array[0] - array[1]
+	for i := 1; i < len(array)-1; i++ {
+		if min > array[i]-array[i+1] {
+			min = array[i] - array[i+1]
 		}
-		return diffs
 	}
-	diffs.InsertBefore(value, n)
-	if diffs.Len() > maxsize {
-		diffs.Remove(diffs.Back())
-	}
-	return diffs
+
+	return min
 }
 
 func main() {
