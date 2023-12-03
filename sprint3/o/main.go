@@ -32,7 +32,7 @@ func checkIndex(array []int, mid, n int) bool {
 				break
 			}
 		}
-		count += j - i -1
+		count += j - i - 1
 	}
 	return count >= n
 }

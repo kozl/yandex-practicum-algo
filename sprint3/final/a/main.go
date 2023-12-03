@@ -1,16 +1,29 @@
 package main
 
-import (
-	"bufio"
-	"fmt"
-	"os"
-	"strconv"
-	"strings"
-)
+/*
+[Посылка](https://contest.yandex.ru/contest/23815/run-report/101288967/)
 
-func solution(array []int, n int) int {
+# Принцип работы
+
+Для решения я использовал следующий алгоритм:
+1. Методом бинарного поиска находим номер элемента, который был наименьшим (стартовым) в кольцевом буфере.
+Функция сравнения для поиска такого элемента: сравниваем текущий элемент с первым. Если он больше, значит искомый
+элемент находится в правой части массива. Если меньше — в левой. Если выбранный элемент меньше предыдущего, значит
+мы его нашли. Пусть номер элемента — start.
+2. Вводим функцию трансляции адреса упорядоченного массива, в адрес массива, который был сдвинут на start позиций.
+3. Чтобы найти элемент бинарным поиском, при доступе к массиву мы транслируем его адрес при помощи функции трансляции.
+4. Полученный адрес элемента — искомый, но это адрес массива без сдвига, используя функцию трансляции получаем адрес
+этого элемента в сдвинутом массиве
+
+# Сложность
+
+Для поиска элемента мы делаем два раза бинарный поиск, следовательно сложность по времени O(logN)
+Сложность по памяти — константная
+*/
+
+func brokenSearch(array []int, n int) int {
 	left, right := 0, len(array)-1
-	first := binarySearch(array, left, right, func(array []int, i int) int {
+	start := binarySearch(array, left, right, func(array []int, i int) int {
 		if i-1 >= 0 && array[i] < array[i-1] {
 			return 0
 		}
@@ -20,78 +33,42 @@ func solution(array []int, n int) int {
 		return -1
 	})
 
-	ordered := make([]int, len(array))
-	if first == -1 {
-		ordered = array
-	} else {
-		copy(ordered[:len(array)-first], array[first:])
-		copy(ordered[len(array)-first:], array[:first])
-	}
-
-	pos := binarySearch(ordered, 0, len(ordered), func(array []int, i int) int {
-		if array[i] == n {
+	pos := binarySearch(array, 0, len(array), func(array []int, i int) int {
+		if array[ringPos(start, i, len(array))] == n {
 			return 0
 		}
-		if array[i] < n {
+		if array[ringPos(start, i, len(array))] < n {
 			return 1
 		}
 		return -1
 	})
-	if first != -1 && pos < len(array)-first {
-		return first + pos
-	}
-	return pos
-}
-
-func binarySearch(array []int, left, right int, fn func(array []int, i int) int) int {
-	if left > right {
+	if array[ringPos(start, pos, len(array))] != n {
 		return -1
 	}
-	mid := (left + right) / 2
-	switch fn(array, mid) {
-	case 0:
-		return mid
-	case 1:
-		return binarySearch(array, mid+1, right, fn)
-	case -1:
-		return binarySearch(array, left, mid, fn)
+	return ringPos(start, pos, len(array))
+}
+
+// binarySearch реализует бинарный поиск, в качестве критерия поиска принимает функцию fn.
+// fn должна возвращать 0 если искомый элемент найден
+// 1, если следует взять правую часть половины массива
+// -1 — если левую
+func binarySearch(array []int, left, right int, fn func(array []int, i int) int) int {
+	for left < right {
+		mid := (left + right) / 2
+		switch fn(array, mid) {
+		case 0:
+			return mid
+		case 1:
+			left = mid + 1
+		case -1:
+			right = mid
+		}
 	}
-	return 0
+	return left
 }
 
-func main() {
-	scanner := makeScanner()
-	_ = readInt(scanner)
-	n := readInt(scanner)
-	array := readArray(scanner)
-	result := solution(array, n)
-	fmt.Println(result)
-}
-
-func makeScanner() *bufio.Scanner {
-	const maxCapacity = 3 * 1024 * 1024
-	buf := make([]byte, maxCapacity)
-	scanner := bufio.NewScanner(os.Stdin)
-	scanner.Buffer(buf, maxCapacity)
-	return scanner
-}
-
-func readArray(scanner *bufio.Scanner) []int {
-	scanner.Scan()
-	listString := strings.Split(scanner.Text(), " ")
-	if len(listString) == 1 && listString[0] == "" {
-		return []int{}
-	}
-	arr := make([]int, len(listString))
-	for i := 0; i < len(listString); i++ {
-		arr[i], _ = strconv.Atoi(listString[i])
-	}
-	return arr
-}
-
-func readInt(scanner *bufio.Scanner) int {
-	scanner.Scan()
-	stringInt := scanner.Text()
-	res, _ := strconv.Atoi(stringInt)
-	return res
+// rungPos транслирует адрес элемента в отсортированном массиве длины len без сдвига
+// в адрес элемента в массиве, в котором был совершен сдвиг кольцевого массива на start позиций
+func ringPos(start, pos, len int) int {
+	return (pos + start) % len
 }
