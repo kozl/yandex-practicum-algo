@@ -7,16 +7,16 @@ import (
 )
 
 func solve(s string) int {
-	set := map[rune]bool{}
+	set := map[string]bool{}
 	i, j, l := 0, 0, 0
 	for j < len(s) {
-		if !set[rune(s[j])] {
-			set[rune(s[j])] = true
+		if !set[string(s[j])] {
+			set[string(s[j])] = true
 			j++
 			l = max(l, len(set))
 		} else {
+			delete(set, string(s[i]))
 			i++
-			set[rune(s[i])] = false
 		}
 	}
 	return l

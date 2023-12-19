@@ -88,5 +88,5 @@ func printArray(array []int) {
 	for i := 0; i < len(array); i++ {
 		s[i] = strconv.Itoa(array[i])
 	}
-	fmt.Println(strings.Join(s, ""))
+	fmt.Println(strings.Join(s, " "))
 }
