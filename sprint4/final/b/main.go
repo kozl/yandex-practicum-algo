@@ -133,11 +133,13 @@ func eval(m *hashMap, cmd string, w io.Writer) {
 func main() {
 	scanner := makeScanner()
 	lines := readInt(scanner)
-	m := newMap(2<<23 - 1)
+	m := newMap(1<<22 - 1)
+	bufWriter := bufio.NewWriterSize(os.Stdout, 1<<16)
 	for i := 0; i < lines; i++ {
 		command := readLine(scanner)
-		eval(m, command, os.Stdout)
+		eval(m, command, bufWriter)
 	}
+	bufWriter.Flush()
 }
 
 func makeScanner() *bufio.Scanner {
