@@ -22,7 +22,6 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -44,16 +43,32 @@ func search(index map[string][]occurence, query string) []int {
 	for k, v := range scoreMap {
 		scores = append(scores, [2]int{k, v})
 	}
-	sort.Slice(scores, func(i, j int) bool {
+
+	bubbleSortNTimes(scores, func(i, j int) bool {
 		if scores[i][1] != scores[j][1] {
-			return scores[i][1] > scores[j][1]
+			return scores[i][1] < scores[j][1]
 		}
-		return scores[i][0] < scores[j][0]
-	})
+		return scores[i][0] > scores[j][0]
+	}, 5)
+
 	if len(scores) <= 5 {
 		return docNumber(scores)
 	}
-	return docNumber(scores)
+	return docNumber(scores[:5])
+}
+
+func bubbleSortNTimes(scores [][2]int, lessFn func(i, j int) bool, n int) {
+	if len(scores) < n {
+		n = len(scores)
+	}
+
+	for i := 0; i < n; i++ {
+		for idx := len(scores) - 1; idx >= 1+i; idx-- {
+			if !lessFn(idx, idx-1) {
+				scores[idx], scores[idx-1] = scores[idx-1], scores[idx]
+			}
+		}
+	}
 }
 
 func uniq(arr []string) (result []string) {
