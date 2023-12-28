@@ -82,25 +82,6 @@ func uniq(arr []string) (result []string) {
 	return result
 }
 
-func maxN(arr [][2]int, n int) [][2]int {
-	result := [][2]int{}
-	removed := map[int]bool{}
-	for i := 0; i < n; i++ {
-		maxElement := arr[0]
-		maxIdx := 0
-		for j := 0; j < len(arr); j++ {
-			_, isRemoved := removed[j]
-			if arr[j][1] > maxElement[1] && !isRemoved {
-				maxElement = arr[j]
-				maxIdx = j
-			}
-		}
-		removed[maxIdx] = true
-		result = append(result, maxElement)
-	}
-	return result
-}
-
 func docNumber(scores [][2]int) []int {
 	result := make([]int, len(scores))
 	for idx, score := range scores {
