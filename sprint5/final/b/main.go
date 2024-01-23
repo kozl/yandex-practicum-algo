@@ -13,7 +13,7 @@ func remove(node *Node, key int) *Node {
 	if node == nil {
 		return node
 	}
-	if node.value == key {
+	if key == node.value {
 		if node.left == nil && node.right == nil {
 			return nil
 		}
@@ -26,10 +26,10 @@ func remove(node *Node, key int) *Node {
 		var val int
 		node.right, val = deleteLeftMostNode(node.right)
 		node.value = val
-	} else if node.value < key {
+	} else if key > node.value {
 		node.right = remove(node.right, key)
 	} else {
-		node.left = remove(node.right, key)
+		node.left = remove(node.left, key)
 	}
 	return node
 }

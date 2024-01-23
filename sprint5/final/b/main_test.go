@@ -1,6 +1,10 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
 
 func TestRemove_example1(t *testing.T) {
 	node1 := Node{2, nil, nil}
@@ -20,6 +24,7 @@ func TestRemove_example1(t *testing.T) {
 	if newHead.right.value != 8 {
 		t.Error("WA")
 	}
+	assert.True(t, isTreeCorrect(newHead))
 }
 
 func TestRemove_example2(t *testing.T) {
@@ -40,6 +45,7 @@ func TestRemove_example2(t *testing.T) {
 	if node3.left != nil {
 		t.Error("WA")
 	}
+	assert.True(t, isTreeCorrect(newHead))
 }
 
 func TestRemove_example3(t *testing.T) {
@@ -57,4 +63,28 @@ func TestRemove_example3(t *testing.T) {
 	if newHead.value != 668 {
 		t.Error("WA")
 	}
+	assert.True(t, isTreeCorrect(newHead))
+}
+
+func isTreeCorrect(node *Node) bool {
+	if node == nil {
+		return true
+	}
+	if node.left != nil {
+		if node.left.value > node.value {
+			return false
+		}
+		if !isTreeCorrect(node.left) {
+			return false
+		}
+	}
+	if node.right != nil {
+		if node.right.value < node.value {
+			return false
+		}
+		if !isTreeCorrect(node.right) {
+			return false
+		}
+	}
+	return true
 }
