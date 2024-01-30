@@ -1,4 +1,4 @@
-# C. Дерево - анаграмма
+# C. Дерево-анаграмма
 
 [Яндекс.Контест](https://contest.yandex.ru/contest/24809/problems/C/)
 

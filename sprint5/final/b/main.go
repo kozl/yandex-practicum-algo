@@ -18,6 +18,9 @@ package main
 из правого поддерева (можно наибольший из левого). Для этого используется функция popLeftMostNode,
 которая извлекает целевой узел и возвращает ссылку на корень дерева в котором его уже нет.
 Этот узел помещается на место удалённого узла.
+
+Вычислительная сложность: O(h), в случае сбалансированного дерева O(log(n))
+Сложность по памяти: O(n)
 */
 
 // <templatet>
@@ -29,39 +32,72 @@ type Node struct {
 
 // <template>
 
-func remove(node *Node, key int) *Node {
+func remove(root *Node, key int) *Node {
+	if root == nil {
+		return root
+	}
+	var (
+		parent *Node
+		node   *Node = root
+	)
+	for node != nil && key != node.value {
+		if key > node.value {
+			parent = node
+			node = node.right
+		} else {
+			parent = node
+			node = node.left
+		}
+	}
 	if node == nil {
-		return node
+		return root
 	}
-	if key == node.value {
-		if node.left == nil && node.right == nil {
-			return nil
-		}
-		if node.left == nil {
-			return node.right
-		}
-		if node.right == nil {
-			return node.left
-		}
-		var popped *Node
-		node.right, popped = popLeftMostNode(node.right)
-		node = popped
-	} else if key > node.value {
-		node.right = remove(node.right, key)
-	} else {
-		node.left = remove(node.left, key)
+
+	if node.left == nil && node.right == nil {
+		replaceParentChildWith(parent, node, nil)
+		return root
 	}
-	return node
+
+	if node.left == nil {
+		replaceParentChildWith(parent, node, node.right)
+		return root
+	}
+
+	if node.right == nil {
+		replaceParentChildWith(parent, node, node.left)
+		return root
+	}
+
+	rightSubtree, popped := popLeftMostNode(node.right)
+	popped.right = rightSubtree
+	popped.left = node.left
+	replaceParentChildWith(parent, node, popped)
+
+	return root
 }
 
-func popLeftMostNode(node *Node) (*Node, *Node) {
-	if node.left == nil {
-		if node.right == nil {
-			return nil, node
-		}
-		return node.right, node
+func popLeftMostNode(root *Node) (*Node, *Node) {
+	var (
+		parent *Node
+		node   *Node = root
+	)
+	for node.left != nil {
+		parent = node
+		node = node.left
 	}
-	var popped *Node
-	node.left, popped = popLeftMostNode(node.left)
-	return node, popped
+
+	replaceParentChildWith(parent, node, node.right)
+	return root, node
+}
+
+func replaceParentChildWith(parent, child, new *Node) {
+	if parent == nil {
+		*child = *new
+		return
+	}
+	if parent.left == child {
+		parent.left = new
+	} else {
+		parent.right = new
+	}
 }
