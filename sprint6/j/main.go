@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -37,33 +38,33 @@ type edge struct {
 	to   int
 }
 
-func dfs(nodesCount, startNode int, edges []edge) [][2]int {
-	adjList := toAdjacencyList(nodesCount, edges)
+func topologicSort(nodesCount int, adjacencyList [][]int) []int {
 	color := make([]int, nodesCount+1)
-	times := make([][2]int, nodesCount+1)
-	time := 0
 	st := stack{}
-	st.push(startNode)
-
-	for !st.empty() {
-		node := st.pop()
-		if color[node] == white {
-			times[node][0] = time
-			color[node] = grey
-			time++
-			st.push(node)
-			for _, adjacent := range adjList[node] {
-				if color[adjacent] == white {
-					st.push(adjacent)
+	result := stack{}
+	for node := 1; node < len(color); node++ {
+		if color[node] != white {
+			continue
+		}
+		st.push(node)
+		for !st.empty() {
+			node := st.pop()
+			if color[node] == white {
+				color[node] = grey
+				st.push(node)
+				for _, adjacent := range adjacencyList[node] {
+					if color[adjacent] == white {
+						st.push(adjacent)
+					}
 				}
+			} else if color[node] == grey {
+				color[node] = black
+				result.push(node)
 			}
-		} else if color[node] == grey {
-			times[node][1] = time
-			color[node] = black
-			time++
 		}
 	}
-	return times
+	slices.Reverse(result)
+	return result
 }
 
 func toAdjacencyList(nodesCount int, edges []edge) [][]int {
@@ -78,10 +79,9 @@ func toAdjacencyList(nodesCount int, edges []edge) [][]int {
 }
 
 func solve(w io.Writer, nodesCount int, edges []edge) {
-	times := dfs(nodesCount, 1, edges)
-	for i := 1; i <= nodesCount; i++ {
-		fmt.Fprintf(w, "%d %d\n", times[i][0], times[i][1])
-	}
+	adjList := toAdjacencyList(nodesCount, edges)
+	nodes := topologicSort(nodesCount, adjList)
+	fmt.Fprintln(w, strings.Join(toStrSlice(nodes), " "))
 }
 
 func main() {
@@ -112,4 +112,12 @@ func readArray(scanner *bufio.Scanner) []int {
 		arr[i], _ = strconv.Atoi(listString[i])
 	}
 	return arr
+}
+
+func toStrSlice(ints []int) []string {
+	s := make([]string, len(ints))
+	for i := range ints {
+		s[i] = fmt.Sprint(ints[i])
+	}
+	return s
 }
