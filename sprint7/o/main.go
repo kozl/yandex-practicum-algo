@@ -3,12 +3,19 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
+	"math"
 	"os"
-	"sort"
 	"strconv"
 	"strings"
 )
+
+const (
+	white = iota
+	grey
+	black
+)
+
+var C = int(math.Pow(float64(10), float64(9))) + 7
 
 type stack []int
 
@@ -31,34 +38,40 @@ type edge struct {
 	to   int
 }
 
-func dfs(w io.Writer, nodesCount int, edges []edge, from, to int) {
-	adjList := toAdjacencyList(nodesCount, edges)
-	routes := 0
-	st := stack{}
-	st.push(from)
-
-	for !st.empty() {
-		node := st.pop()
-		if node == to {
-			routes++
-			continue
-		}
-		for _, adjacent := range adjList[node] {
-			st.push(adjacent)
+func countPaths(nodesCount int, edges []edge, from, to int) int {
+	revAdjList := toReverseAdjacencyList(nodesCount, edges)
+	dp := make([]int, nodesCount+1)
+	color := make([]int, nodesCount+1)
+	s := stack{}
+	dp[from] = 1
+	color[from] = black
+	s.push(to)
+	for !s.empty() {
+		n := s.pop()
+		if color[n] == white {
+			s.push(n)
+			color[n] = grey
+			for _, revAdj := range revAdjList[n] {
+				if color[revAdj] == white {
+					s.push(revAdj)
+				}
+			}
+		} else if color[n] == grey {
+			for _, revAdj := range revAdjList[n] {
+				dp[n] = (dp[n] + dp[revAdj]) % C
+			}
+			color[n] = black
 		}
 	}
-	fmt.Fprint(w, routes)
+	return dp[to]
 }
 
-func toAdjacencyList(nodesCount int, edges []edge) [][]int {
-	adjList := make([][]int, nodesCount+1)
+func toReverseAdjacencyList(nodesCount int, edges []edge) [][]int {
+	reverseAdjList := make([][]int, nodesCount+1)
 	for _, edge := range edges {
-		adjList[edge.from] = append(adjList[edge.from], edge.to)
+		reverseAdjList[edge.to] = append(reverseAdjList[edge.to], edge.from)
 	}
-	for i := 0; i < len(adjList); i++ {
-		sort.Sort(sort.Reverse(sort.IntSlice(adjList[i])))
-	}
-	return adjList
+	return reverseAdjList
 }
 
 func main() {
@@ -73,7 +86,7 @@ func main() {
 	raw = readArray(scanner)
 	from, to := raw[0], raw[1]
 
-	dfs(os.Stdout, nodesCount, edges, from, to)
+	fmt.Println(countPaths(nodesCount, edges, from, to))
 }
 
 func makeScanner() *bufio.Scanner {
