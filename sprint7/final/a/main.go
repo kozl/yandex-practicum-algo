@@ -21,13 +21,15 @@ import (
 Пространственная сложность: O(len(s)*len(t))
 */
 func levenstein(s, t string) int {
-	dp := makeDP(s, t)
+	prevdp, dp := makeDPs(t)
 	for i := 1; i <= len(s); i++ {
+		dp[0] = i
 		for j := 1; j <= len(t); j++ {
-			dp[i][j] = min(dp[i-1][j]+1, dp[i][j-1]+1, dp[i-1][j-1]+m(get(s, i), get(t, j)))
+			dp[j] = min(prevdp[j]+1, dp[j-1]+1, prevdp[j-1]+m(get(s, i), get(t, j)))
 		}
+		copy(prevdp, dp)
 	}
-	return dp[len(s)][len(t)]
+	return dp[len(t)]
 }
 
 func m(a, b string) int {
@@ -41,19 +43,17 @@ func get(s string, i int) string {
 	return string(s[i-1])
 }
 
-// makeDP инициализирует массив dp, в котором индексы i и j соответствуют
+// makeDPs инициализирует массив dp, в котором индексы i и j соответствуют
 // решению задачи для 0..i и 0..j подстрок s и t соответственно.
 // При инициализации массива задаём также базовые случаи: для пустой строки s или t
-func makeDP(s, t string) [][]int {
-	dp := make([][]int, len(s)+1)
-	for idx := range dp {
-		dp[idx] = make([]int, len(t)+1)
-		dp[idx][0] = idx
+//
+// Оптимизация: инициализируем только 0 и 1 строку двумерного массива
+func makeDPs(t string) ([]int, []int) {
+	i0, i1 := make([]int, len(t)+1), make([]int, len(t)+1)
+	for idx := range i0 {
+		i0[idx] = idx
 	}
-	for idx := range dp[0] {
-		dp[0][idx] = idx
-	}
-	return dp
+	return i0, i1
 }
 
 func main() {

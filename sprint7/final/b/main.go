@@ -29,13 +29,12 @@ func solve(scores []int) bool {
 		return false
 	}
 
-	dp := makeDP(s/2 + 1)
+	dp, nextdp := makeDPs(s / 2)
 	for i := 1; i <= len(scores); i++ {
-		nextdp := makeDP(s/2 + 1)
 		for j := 1; j <= s/2; j++ {
 			nextdp[j] = get(dp, j) || get(dp, j-scores[i-1])
 		}
-		dp = nextdp
+		copy(dp, nextdp)
 	}
 
 	return dp[s/2]
@@ -55,14 +54,15 @@ func sum(arr []int) (sum int) {
 	return sum
 }
 
-// makeDP инициализирует массив dp, который соответствует строке в двумерном массиве с индексами i и j.
+// makeDPs инициализирует массивы dp и nextdp, которые соответствуют двум строкам (текущей и предыдущей)
+// в двумерном массиве с индексами i и j.
 // Двумерный массив хранит ответы на вопрос для подзадач: есть ли в множестве чисел с номерами от 1 до i
 // такое подмножество, сумма которого равна j. Здесь же производится инициализация базового случая: для j = 0,
 // то есть для нулевой суммы ответ для любого i положительный.
-func makeDP(n int) []bool {
-	dp := make([]bool, n+1)
-	dp[0] = true
-	return dp
+func makeDPs(n int) ([]bool, []bool) {
+	dp, nextdp := make([]bool, n+1), make([]bool, n+1)
+	dp[0], nextdp[0] = true, true
+	return dp, nextdp
 }
 
 func main() {

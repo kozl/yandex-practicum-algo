@@ -32,6 +32,13 @@ func Test_solve(t *testing.T) {
 			},
 			want: false,
 		},
+		{
+			name: "example 4",
+			args: args{
+				scores: []int{1, 1, 100},
+			},
+			want: false,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
