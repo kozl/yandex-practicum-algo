@@ -34,10 +34,10 @@ func solve(scores []int) bool {
 		for j := 1; j <= s/2; j++ {
 			nextdp[j] = get(dp, j) || get(dp, j-scores[i-1])
 		}
-		copy(dp, nextdp)
+		dp, nextdp = nextdp, dp
 	}
 
-	return dp[s/2]
+	return nextdp[s/2]
 }
 
 func get(dp []bool, i int) bool {

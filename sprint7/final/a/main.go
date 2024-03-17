@@ -27,9 +27,9 @@ func levenstein(s, t string) int {
 		for j := 1; j <= len(t); j++ {
 			dp[j] = min(prevdp[j]+1, dp[j-1]+1, prevdp[j-1]+m(get(s, i), get(t, j)))
 		}
-		copy(prevdp, dp)
+		dp, prevdp = prevdp, dp
 	}
-	return dp[len(t)]
+	return prevdp[len(t)]
 }
 
 func m(a, b string) int {

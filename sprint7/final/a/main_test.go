@@ -36,6 +36,14 @@ func Test_levenstein(t *testing.T) {
 			},
 			want: 1,
 		},
+		{
+			name: "example 4",
+			args: args{
+				s: "dxqrpmratn",
+				t: "jdpmykgmaitn",
+			},
+			want: 8,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
