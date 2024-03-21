@@ -1,3 +1,13 @@
-# yandex-practicum-algo
+# Яндекс.Практикум Алгоритмы
+Решаю задачи на курсе [Яндекс.Практикума "Алгоритмы и структуры данных"](https://practicum.yandex.ru/algorithms/)
 
-Solving problems in the course [Yandex Practicum "Algorithms and Data Structures"](https://practicum.yandex.ru/algorithms/)
+## Спринты
+
+1. [Введение в алгоритмы](./sprint1/)
+2. [Основные структуры данных](./sprint2/)
+3. [Рекурсия и сортировки](./sprint3/)
+4. [Хеш-функции](./sprint4/)
+5. [Деревья](./sprint5/)
+6. [Графы](./sprint6/)
+7. [Жадные алгоритмы и динамическое программирование](./sprint7/)
+7. [Алгоритмы на строках](./sprint8/)
