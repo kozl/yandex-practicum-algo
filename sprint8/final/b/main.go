@@ -7,6 +7,22 @@ import (
 	"strconv"
 )
 
+/*
+ПО ЭТОЙ ЗАДАЧЕ НУЖНА ПОМОЩЬ
+Успешной посылки нет, некоторые тесты не проходят по TL: https://contest.yandex.ru/contest/26133/run-report/111504678/4
+Как оптимизировать идей что-то нет :(
+
+Алгоритм решения задачи следующий:
+1. Формируем префиксное дерево из всех возможных слов, которые могут встретиться в тексте
+2. Алгоритм рекурсивный, для рекурсии используется стек. В стек кладём позицию символа, с которого начнём
+   очередную проверку того, что строка состоит из слов
+3. В стек добавляем индекс в случае если в префиксном дереве находим узел, содержащий значение
+4. Если доходим до конца строки, а последний узел префиксного дерева содержит значение — значит строка состоит из корректных слов
+5. Итерируемся до момента, пока не опустеет стек. Если до этого момента не вышли из функции, значит так и не дошли до конца строки
+6. Используется мемоизация, массив checked хранит стартовые префиксы строк, которые уже проверяли
+
+*/
+
 type node struct {
 	value    *string
 	children [26]*node
@@ -29,30 +45,73 @@ func newTrie() trie {
 func (t trie) addWord(w string) {
 	n := t.root
 	for _, r := range w {
-		if n.children[index(r)] == nil {
-			n.children[index(r)] = &node{}
+		ridx := index(r)
+		if n.children[ridx] == nil {
+			n.children[ridx] = &node{}
 		}
-		n = n.children[index(r)]
+		n = n.children[ridx]
 	}
 	n.addValue(w)
 }
 
-func (t trie) traverseLine(line string) bool {
-	n := t.root
-	for _, r := range line {
-		if n.value != nil {
-			n = t.root
-		}
-		if n.children[index(r)] == nil {
-			return false
-		}
-		n = n.children[index(r)]
+type stack []int
+
+func (s *stack) empty() bool {
+	if s == nil {
+		return true
 	}
-	return n.value != nil
+	return len(*s) == 0
 }
 
+func (s *stack) push(i int) {
+	*s = append(*s, i)
+}
+
+func (s *stack) pop() (i int) {
+	if s.empty() || s == nil {
+		panic("unexpected: empty or nil stack")
+	}
+	last := len(*s) - 1
+	i = (*s)[last]
+	*s = (*s)[:last]
+	return i
+}
+
+const firstCharacter = 'a'
+
 func index(r rune) int {
-	return int(r) - 'a'
+	return int(r) - firstCharacter
+}
+
+func containValidWords(t trie, line string) bool {
+	s := stack{}
+	checked := make([]bool, len(line))
+	s.push(0)
+	for !s.empty() {
+		start := s.pop()
+		if checked[start] {
+			continue
+		}
+		node := t.root
+		var idx int
+		for idx = start; idx < len(line); idx++ {
+			if node.value != nil {
+				s.push(idx)
+			}
+			ridx := index(rune(line[idx]))
+			if node.children[ridx] == nil {
+				break
+			}
+			node = node.children[ridx]
+		}
+		if idx == len(line) {
+			if node.value != nil {
+				return true
+			}
+			checked[start] = true
+		}
+	}
+	return false
 }
 
 func solve(line string, words []string) bool {
@@ -60,7 +119,7 @@ func solve(line string, words []string) bool {
 	for _, word := range words {
 		t.addWord(word)
 	}
-	return t.traverseLine(line)
+	return containValidWords(t, line)
 }
 
 func main() {
