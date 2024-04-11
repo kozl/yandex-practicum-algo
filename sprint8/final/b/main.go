@@ -8,19 +8,20 @@ import (
 )
 
 /*
-ПО ЭТОЙ ЗАДАЧЕ НУЖНА ПОМОЩЬ
-Успешной посылки нет, некоторые тесты не проходят по TL: https://contest.yandex.ru/contest/26133/run-report/111504678/4
-Как оптимизировать идей что-то нет :(
+[Успешная посылка](https://contest.yandex.ru/contest/26133/run-report/111800199/)
 
 Алгоритм решения задачи следующий:
 1. Формируем префиксное дерево из всех возможных слов, которые могут встретиться в тексте
 2. Алгоритм рекурсивный, для рекурсии используется стек. В стек кладём позицию символа, с которого начнём
    очередную проверку того, что строка состоит из слов
-3. В стек добавляем индекс в случае если в префиксном дереве находим узел, содержащий значение
+3. В стек добавляем индекс в случае если в префиксном дереве находим неконечный узел, содержащий значение. не конечныйы узел
+   это такой, у которого есть дочерний узел, по которому можем двигаться дальше
 4. Если доходим до конца строки, а последний узел префиксного дерева содержит значение — значит строка состоит из корректных слов
 5. Итерируемся до момента, пока не опустеет стек. Если до этого момента не вышли из функции, значит так и не дошли до конца строки
 6. Используется мемоизация, массив checked хранит стартовые префиксы строк, которые уже проверяли
 
+Оценка сложности: в худшем случае O(mn^2), где m количество слов, n это длина строки. m на формирование префиксного дерева, n^2 на обход
+Пространственная сложность: O(mn)
 */
 
 type node struct {
@@ -77,41 +78,32 @@ func (s *stack) pop() (i int) {
 	return i
 }
 
+func containValidWords(s *stack, t trie, line string, start int) bool {
+	current := t.root
+	var idx int
+	for idx = start; idx < len(line) && current != nil; idx++ {
+		// idx указывает на следующий символ,
+		// т.е. current это нода, соответствующая idx-1 символу
+		next := nextNode(current, rune(line[idx]))
+		if current.value != nil && next != nil {
+			s.push(idx)
+		}
+		if current.value != nil && next == nil {
+			next = nextNode(t.root, rune(line[idx]))
+		}
+		current = next
+	}
+	return idx == len(line) && current != nil && current.value != nil
+}
+
+func nextNode(current *node, r rune) *node {
+	return current.children[index(r)]
+}
+
 const firstCharacter = 'a'
 
 func index(r rune) int {
 	return int(r) - firstCharacter
-}
-
-func containValidWords(t trie, line string) bool {
-	s := stack{}
-	checked := make([]bool, len(line))
-	s.push(0)
-	for !s.empty() {
-		start := s.pop()
-		if checked[start] {
-			continue
-		}
-		node := t.root
-		var idx int
-		for idx = start; idx < len(line); idx++ {
-			if node.value != nil {
-				s.push(idx)
-			}
-			ridx := index(rune(line[idx]))
-			if node.children[ridx] == nil {
-				break
-			}
-			node = node.children[ridx]
-		}
-		if idx == len(line) {
-			if node.value != nil {
-				return true
-			}
-			checked[start] = true
-		}
-	}
-	return false
 }
 
 func solve(line string, words []string) bool {
@@ -119,7 +111,21 @@ func solve(line string, words []string) bool {
 	for _, word := range words {
 		t.addWord(word)
 	}
-	return containValidWords(t, line)
+
+	checked := map[int]bool{}
+	s := stack{}
+	s.push(0)
+	for !s.empty() {
+		start := s.pop()
+		if checked[start] {
+			continue
+		}
+		if containValidWords(&s, t, line, start) {
+			return true
+		}
+		checked[start] = true
+	}
+	return false
 }
 
 func main() {

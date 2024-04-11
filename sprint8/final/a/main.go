@@ -11,6 +11,8 @@ import (
 )
 
 /*
+[Успешная посылка](https://contest.yandex.ru/contest/26133/run-report/111791581/)
+
 Алгоритм распаковки:
 
 Используем стек, в который можно сохранять символы. Итерируемся по строке, на каждый символ проверяем:
@@ -29,6 +31,11 @@ import (
 (проверяя не вышли ли за длину другой строки). Если он не равен или вышли за пределы длины — возвращаем общий префикс.
 В противном случае инкрементируем длину префикса.
 
+Оценка сложности: распаковка: в худшем случае O(nm), n — длина строки, m — количество вложенных конструкций для распаковки
+				  поиск наибольшего общего префикса: O(kl), k — количество строк для распаковки, l — минимальная длина строки
+
+Пространственная сложность: распаковка O(nm), n — результирующая длина строки, m — количество вложенных последовательностей
+                            поиск наибольшего общего префикса: O(1)
 */
 
 type stack []rune
@@ -92,25 +99,29 @@ func unpack(line string) string {
 	return s.string()
 }
 
-func longestCommonPrefix(lines []string) string {
+func longestCommonPrefix(a, b string) string {
+	minlen := len(a)
+	if len(b) < minlen {
+		minlen = len(b)
+	}
 	var prefixlen int
-	for i := 0; i < len(lines[0]); i++ {
-		for j := 1; j < len(lines); j++ {
-			if i >= len(lines[j]) || lines[0][i] != lines[j][i] {
-				return lines[0][:prefixlen]
-			}
+	for i := 0; i < minlen; i++ {
+		if a[i] != b[i] {
+			return a[:prefixlen]
 		}
 		prefixlen++
 	}
-	return lines[0][:prefixlen]
+	return a[:prefixlen]
 }
 
 func solve(lines []string) string {
-	unpacked := make([]string, len(lines))
-	for i := 0; i < len(lines); i++ {
-		unpacked[i] = unpack(lines[i])
+	a := unpack(lines[0])
+	lcp := a
+	for i := 1; i < len(lines); i++ {
+		b := unpack(lines[i])
+		lcp = longestCommonPrefix(lcp, b)
 	}
-	return longestCommonPrefix(unpacked)
+	return lcp
 }
 
 func repeat(s []rune, c int) string {
