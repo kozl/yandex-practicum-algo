@@ -55,33 +55,3 @@ func Test_solve(t *testing.T) {
 		})
 	}
 }
-
-func Test_hasCommonArrayLen(t *testing.T) {
-	type args struct {
-		a []int
-		b []int
-		n int
-	}
-	tests := []struct {
-		name string
-		args args
-		want bool
-	}{
-		{
-			name: "example 1",
-			args: args{
-				a: []int{1, 2, 3, 2, 1},
-				b: []int{3, 2, 1, 5, 6},
-				n: 3,
-			},
-			want: true,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := hasCommonArrayLen(tt.args.a, tt.args.b, tt.args.n); got != tt.want {
-				t.Errorf("hasCommonArrayLen() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}

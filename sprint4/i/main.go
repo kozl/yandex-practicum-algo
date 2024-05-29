@@ -8,51 +8,35 @@ import (
 	"strings"
 )
 
-const (
-	mod = 1000000000
-	A   = 131
-)
-
 func solve(a, b []int) int {
-	left := 0
-	right := min(len(a), len(b))
-	maxN := 0
-	for left <= right {
-		cur := (left + right) / 2
-		if hasCommonArrayLen(a, b, cur) {
-			maxN = max(maxN, cur)
-			left = cur + 1
-		} else {
-			right = cur - 1
-		}
-	}
-	return maxN
-}
+	var maxlen int
+	bmap := toMap(b)
 
-func hasCommonArrayLen(a, b []int, n int) bool {
-	if n > len(b) || n > len(a) {
-		return false
-	}
-	for i := 0; i+n <= len(a); i++ {
-		for j := 0; j+n <= len(b); j++ {
-			h1 := hash(a[i:i+n], A, mod)
-			h2 := hash(b[j:j+n], A, mod)
-			if h1 == h2 {
-				return true
+	for apos, d := range a {
+		if _, ok := bmap[d]; !ok {
+			continue
+		}
+		for _, bpos := range bmap[d] {
+			result := findCommonLen(a, b, apos, bpos)
+			if result > maxlen {
+				maxlen = result
 			}
 		}
 	}
-	return false
+	return maxlen
 }
 
-func hash(arr []int, n, mod int) int {
-	result := 0
-	N := 1
-	for _, v := range arr {
-		result += (v * N) % mod
-		N = (N * n) % mod
+func findCommonLen(a, b []int, apos, bpos int) int {
+	var commonlen int
+	for bpos < len(b) && apos < len(a) {
+		if a[apos] != b[bpos] {
+			return commonlen
+		}
+		commonlen++
+		apos++
+		bpos++
 	}
-	return result
+	return commonlen
 }
 
 func main() {
@@ -87,4 +71,15 @@ func readInt(scanner *bufio.Scanner) int {
 	stringInt := scanner.Text()
 	res, _ := strconv.Atoi(stringInt)
 	return res
+}
+
+func toMap(arr []int) map[int][]int {
+	result := map[int][]int{}
+	for idx, d := range arr {
+		if _, ok := result[d]; !ok {
+			result[d] = []int{}
+		}
+		result[d] = append(result[d], idx)
+	}
+	return result
 }
